@@ -1,5 +1,5 @@
 import { FC, SyntheticEvent, useCallback, useEffect, useState } from 'react';
-import { Container, Segment, Dropdown } from 'semantic-ui-react';
+import { Container, Segment, Dropdown, Button } from 'semantic-ui-react';
 import Board from './Board';
 import { SquareProperty } from './SquareStatus';
 
@@ -54,18 +54,7 @@ const Game: FC = () => {
     [width, height],
   );
 
-  useEffect(() => {
-    // const initialBoard = [
-    //   [
-    //     {
-    //       hasBomb: false,
-    //       open: true,
-    //       hasFlag: false,
-    //       bombNumberAround: 0,
-    //     },
-    //   ],
-    // ];
-
+  const initializeBoard = useCallback(() => {
     const initialBoard = [...new Array<SquareProperty>(height)].map((_) =>
       [...new Array<SquareProperty>(width)].map((__) => ({
         hasBomb: false,
@@ -104,12 +93,16 @@ const Game: FC = () => {
         });
       });
 
-    setBoard(initialBoard);
+    return initialBoard;
+  }, [width, height, bombNumber, getArroundCell]);
+
+  useEffect(() => {
+    setBoard(initializeBoard());
 
     return () => {
       void 0;
     };
-  }, [width, height, bombNumber, getArroundCell]);
+  }, [initializeBoard]);
 
   useEffect(() => {
     const [localWidth, localHeight, localBombNumber] = difficulty;
@@ -187,6 +180,12 @@ const Game: FC = () => {
     });
   };
 
+  const reset = () => {
+    setGameOver(false);
+
+    setBoard(initializeBoard());
+  };
+
   return (
     <Container>
       <Segment>
@@ -199,6 +198,7 @@ const Game: FC = () => {
             defaultValue="small"
             onChange={changeDifficulty}
           />
+          <Button onClick={reset}>Reset</Button>
         </Segment>
 
         <Segment>
