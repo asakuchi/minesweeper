@@ -11,13 +11,15 @@ import './Board.css';
 type Props = {
   board: SquareProperty[][];
   openCell: (i: number, j: number) => void;
+  setFlag: (i: number, j: number) => void;
+  unsetFlag: (i: number, j: number) => void;
 };
 
 // {row.map((item) => (
 //   <Square property={item} />
 // ))}
 
-const Board: FC<Props> = ({ board, openCell }) => (
+const Board: FC<Props> = ({ board, openCell, setFlag, unsetFlag }) => (
   <div className="table">
     {board.map((row, i) => (
       <div key={i.toString()} className="table_line">
@@ -28,6 +30,8 @@ const Board: FC<Props> = ({ board, openCell }) => (
             i={i}
             j={j}
             openCell={openCell}
+            setFlag={setFlag}
+            unsetFlag={unsetFlag}
           />
         ))}
       </div>
