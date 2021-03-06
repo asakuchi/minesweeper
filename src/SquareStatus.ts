@@ -1,6 +1,6 @@
-export type SquareStatus = 'OPEN' | 'CLOSED' | 'FLAG';
-
 export type SquareProperty = {
-  status: SquareStatus;
+  open: boolean;
+  hasFlag: boolean;
   hasBomb: boolean;
+  bombNumberAround: number;
 };

@@ -1,5 +1,12 @@
+.table_cell {
+  display: table-cell;
+}
+
 .square {
   width: 35px;
+  height: 35px;
+
+  /* width: 35px;
   height: 35px;
   padding: 0;
   margin-top: -1px;
@@ -9,5 +16,5 @@
   line-height: 34px;
   text-align: center;
   background: #fff;
-  border: 1px solid #999;
+  border: 1px solid #999; */
 }

@@ -1,0 +1,7 @@
+.table {
+  border: 10px;
+}
+
+.table_line {
+  display: table;
+}
