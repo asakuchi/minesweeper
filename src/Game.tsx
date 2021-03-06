@@ -8,29 +8,6 @@ const Game: FC = () => {
   const [height, setHeight] = useState(0);
   const [bombNumber, setBombNumber] = useState(0);
 
-  const [board, setBoard] = useState<SquareProperty[][]>([[]]);
-
-  const [isGameOver, setGameOver] = useState(false);
-
-  const difficultyOptions = [
-    { key: 'small', value: 'small', text: 'Small', size: [8, 8, 10] },
-    { key: 'medium', value: 'medium', text: 'Medium', size: [20, 10, 20] },
-    { key: 'large', value: 'large', text: 'Large', size: [30, 15, 40] },
-  ];
-
-  const [difficulty, setDifficulty] = useState(difficultyOptions[0].size);
-
-  // eslint-disable-next-line
-  const changeDifficulty = (event: SyntheticEvent, data: any) => {
-    // eslint-disable-next-line
-    console.log(data);
-
-    setDifficulty(
-      // eslint-disable-next-line
-      difficultyOptions.find((item) => item.value === data.value)!.size,
-    );
-  };
-
   const getArroundCell = useCallback(
     (row: number, column: number): number[][] => {
       const cells: number[][] = [];
@@ -96,8 +73,35 @@ const Game: FC = () => {
     return initialBoard;
   }, [width, height, bombNumber, getArroundCell]);
 
+  const [board, setBoard] = useState<SquareProperty[][]>(initializeBoard());
+
+  const [isGameOver, setGameOver] = useState(false);
+  const [isSuccess, setSuccess] = useState(false);
+
+  const difficultyOptions = [
+    { key: 'small', value: 'small', text: 'Small', size: [8, 8, 10] },
+    { key: 'medium', value: 'medium', text: 'Medium', size: [20, 10, 20] },
+    { key: 'large', value: 'large', text: 'Large', size: [30, 15, 40] },
+  ];
+
+  const [difficulty, setDifficulty] = useState(difficultyOptions[0].size);
+
+  // eslint-disable-next-line
+  const changeDifficulty = (event: SyntheticEvent, data: any) => {
+    // eslint-disable-next-line
+    console.log(data);
+
+    setDifficulty(
+      // eslint-disable-next-line
+      difficultyOptions.find((item) => item.value === data.value)!.size,
+    );
+  };
+
   useEffect(() => {
     setBoard(initializeBoard());
+
+    setGameOver(false);
+    setSuccess(false);
 
     return () => {
       void 0;
@@ -115,6 +119,30 @@ const Game: FC = () => {
       void 0;
     };
   }, [difficulty]);
+
+  useEffect(() => {
+    if (board.length !== 0) {
+      if (
+        board
+          .reduce((pre, current) => {
+            pre.push(...current);
+
+            return pre;
+          }, [])
+          .filter((item) => !item.open)
+          .filter((item) => !item.hasBomb).length === 0
+      ) {
+        setGameOver(true);
+        setSuccess(true);
+      } else {
+        setSuccess(false);
+      }
+    }
+
+    return () => {
+      void 0;
+    };
+  }, [board]);
 
   const openCell = (i: number, j: number): void => {
     if (isGameOver) return;
@@ -136,9 +164,13 @@ const Game: FC = () => {
         // eslint-disable-next-line no-param-reassign
         innerBoard[k][l].open = true;
 
+        if (innerBoard[k][l].bombNumberAround !== 0) {
+          return;
+        }
+
         getArroundCell(k, l)
           .filter(([m, n]) => !innerBoard[m][n].open)
-          .filter(([m, n]) => innerBoard[m][n].bombNumberAround === 0)
+          // .filter(([m, n]) => innerBoard[m][n].bombNumberAround === 0)
           .forEach(([m, n]) => {
             OpenSaffeCellsAround(innerBoard, m, n);
           });
@@ -182,9 +214,18 @@ const Game: FC = () => {
 
   const reset = () => {
     setGameOver(false);
+    setSuccess(false);
 
     setBoard(initializeBoard());
   };
+
+  let text = 'Look for mins!';
+
+  if (isSuccess) {
+    text = '🎉🎉🎉🎉🎉 Success 🎉🎉🎉🎉🎉';
+  } else if (isGameOver) {
+    text = '💣💣💣💣💣 Game Over 💣💣💣💣💣';
+  }
 
   return (
     <Container>
@@ -201,9 +242,7 @@ const Game: FC = () => {
           <Button onClick={reset}>Reset</Button>
         </Segment>
 
-        <Segment>
-          {isGameOver ? '💣💣💣💣💣 Game Over 💣💣💣💣💣' : 'Look for mins!'}
-        </Segment>
+        <Segment>{text}</Segment>
 
         <Segment>
           <div className="game">
